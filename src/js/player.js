@@ -1,14 +1,7 @@
+import {Rayo} from './rayo.js'
+import { normalizaAngulo } from './rayo.js';
+
 const jugadorColor = '#FFFFFF';
-
-function normalizaAngulo(angulo) {
-    angulo = angulo % (2 * Math.PI);
-
-    if (angulo < 0) {
-        angulo = angulo + (2 * Math.PI);
-    }
-
-    return angulo;
-}
 
 export class Player {
     constructor(con, escenario, x, y) {
@@ -25,6 +18,8 @@ export class Player {
 
         this.velMovimiento = 3; //Pixels
         this.velGiro = 3 * (Math.PI / 180); //Grados
+
+        this.rayo = new Rayo(this.ctx, this.escenario, this.x, this.y, this.anguloRotacion, 0);
     }
 
     colision(x, y) {
@@ -55,10 +50,17 @@ export class Player {
         //girar
         this.anguloRotacion += this.gira * this.velGiro;
         this.anguloRotacion = normalizaAngulo(this.anguloRotacion);
-    }
 
+    }
+    
     dibuja() {
         this.actualiza();
+        
+        //Actuizar angulo del rayo
+        this.rayo.setAngulo(this.anguloRotacion);
+        this.rayo.x = this.x;
+        this.rayo.y = this.y;
+        this.rayo.dibuja();
 
         //Cuadrito
         this.ctx.fillStyle = jugadorColor;
