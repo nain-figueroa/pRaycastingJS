@@ -1,5 +1,5 @@
-import {Rayo} from './rayo.js'
-import { normalizaAngulo } from './rayo.js';
+import {Rayo} from './rayo.js';
+import { convertirRadianes, normalizaAngulo, FOV, medioFOV } from './global.js';
 
 const jugadorColor = '#FFFFFF';
 
@@ -19,7 +19,22 @@ export class Player {
         this.velMovimiento = 3; //Pixels
         this.velGiro = 3 * (Math.PI / 180); //Grados
 
-        this.rayo = new Rayo(this.ctx, this.escenario, this.x, this.y, this.anguloRotacion, 0);
+        this.numRayos = 500;
+        this.rayos = [];
+
+        //Calcular angulo de cada rayo
+        
+        var incrementoAngulo = convertirRadianes(FOV / this.numRayos);
+        var anguloInicial = convertirRadianes(this.anguloRotacion - medioFOV);
+
+        var anguloRayo = anguloInicial;
+
+        //Crear cada rayo
+        for (let i = 0; i < this.numRayos; i++) {
+            this.rayos[i] = new Rayo(this.ctx, this.escenario, this.x, this.y, this.anguloRotacion, anguloRayo, i);
+            anguloRayo += incrementoAngulo;
+        }
+
     }
 
     colision(x, y) {
@@ -51,29 +66,40 @@ export class Player {
         this.anguloRotacion += this.gira * this.velGiro;
         this.anguloRotacion = normalizaAngulo(this.anguloRotacion);
 
+        //Actualizar angulo del rayo
+        for (let i = 0; i < this.numRayos; i++) {
+            this.rayos[i].x = this.x;
+            this.rayos[i].y = this.y;
+            this.rayos[i].setAngulo(this.anguloRotacion);
+        }
+
     }
     
     dibuja() {
         this.actualiza();
         
-        //Actuizar angulo del rayo
-        this.rayo.setAngulo(this.anguloRotacion);
-        this.rayo.x = this.x;
-        this.rayo.y = this.y;
-        this.rayo.dibuja();
+        for (let i = 0; i < this.numRayos; i++) {
+            //this.rayos[i].rederPared();
+            this.rayos[i].dibuja();
+        }
+        // //Actuizar angulo del rayo
+        // this.rayo.setAngulo(this.anguloRotacion);
+        // this.rayo.x = this.x;
+        // this.rayo.y = this.y;
+        // this.rayo.dibuja();
 
-        //Cuadrito
-        this.ctx.fillStyle = jugadorColor;
-        this.ctx.fillRect((this.x - 3), (this.y -3), 6, 6);
+        // //Cuadrito
+        // this.ctx.fillStyle = jugadorColor;
+        // this.ctx.fillRect((this.x - 3), (this.y -3), 6, 6);
 
-        var xDestino = this.x + Math.cos(this.anguloRotacion) * 40;
-        var yDestino = this.y + Math.sin(this.anguloRotacion) * 40;
+        // var xDestino = this.x + Math.cos(this.anguloRotacion) * 40;
+        // var yDestino = this.y + Math.sin(this.anguloRotacion) * 40;
 
-        this.ctx.beginPath();
-        this.ctx.moveTo(this.x, this.y);
-        this.ctx.lineTo(xDestino, yDestino);
-        this.ctx.strokeStryle = '#FFFFFF';
-        this.ctx.stroke();
+        // this.ctx.beginPath();
+        // this.ctx.moveTo(this.x, this.y);
+        // this.ctx.lineTo(xDestino, yDestino);
+        // this.ctx.strokeStryle = '#FFFFFF';
+        // this.ctx.stroke();
     }
 
 
