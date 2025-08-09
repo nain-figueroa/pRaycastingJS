@@ -1,4 +1,5 @@
-import { reescalaCanvas, renderSprites, sprites, canvasAlto, canvasAncho, modo, tiles} from "./globals.js";
+import { sprites, canvasAlto, canvasAncho, modo, tiles} from "./globals.js";
+import { reescalaCanvas, renderSprites } from "./functions.js";
 import { Level } from "./level.js";
 import { Player } from "./player.js";
 import { Sprite } from "./sprite.js";
@@ -129,16 +130,7 @@ function sueloTecho() {
 
 function principal() {
   borraCanvas();
-
-  switch (modo ){
-    case 1:
-      escenario.dibuja();
-      break;
-    case 0:
-      sueloTecho();
-  }
-
+  sueloTecho();
   jugador.dibuja();
-
-  renderSprites();
+  renderSprites(sprites);
 }

@@ -35,22 +35,4 @@ export class Level {
     var casillaY = parseInt(y / this.altoT);
     return (this.matriz[casillaY][casillaX]);
   }
-
-  dibuja() {
-    var color;
-
-    for (var y = 0; y < this.altoM; y++) {
-      for (var x = 0; x < this.anchoM; x++) {
-
-        if (this.matriz[y][x] != 0)
-          color = '#000000';
-        else
-          color = '#666666';
-
-        this.ctx.fillStyle = color;
-        this.ctx.fillRect(x * this.anchoT, y * this.altoT, this.anchoT, this.altoT);
-      }
-    }
-
-  }
 }

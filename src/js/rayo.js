@@ -1,4 +1,5 @@
-import { normalizaAngulo, distanciaEntrePuntos, canvasAlto, canvasAncho, FOV, tamTile, zBuffer, modo, tiles } from "./globals.js";
+import { normalizaAngulo, distanciaEntrePuntos } from "./functions.js";
+import { canvasAlto, canvasAncho, FOV, tamTile, zBuffer, tiles } from "./globals.js";
 
 export class Rayo {
   constructor(con, escenario, x, y, anguloJugador, incrementoAngulo, columna) {

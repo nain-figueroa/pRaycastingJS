@@ -1,4 +1,5 @@
-import { convierteRadianes, normalizaAngulo, FOV, modo } from "./globals.js";
+import { convierteRadianes, normalizaAngulo } from "./functions.js";
+import { FOV} from "./globals.js";
 import { Rayo } from "./rayo.js";
 
 

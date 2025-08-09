@@ -1,4 +1,5 @@
-import { convierteRadianes,distanciaEntrePuntos , FOV, modo, canvasAlto, canvasAncho, zBuffer } from "./globals.js";
+import { convierteRadianes, distanciaEntrePuntos } from "./functions.js";
+import { FOV, modo, canvasAlto, canvasAncho, zBuffer } from "./globals.js";
 
 const FOVRadianes = convierteRadianes(FOV);
 const FOV_medio = convierteRadianes(FOV / 2);
