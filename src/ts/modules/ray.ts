@@ -26,8 +26,6 @@ export class Ray {
 
     public distanciaPlanoProyeccion: number;
 
-    public intercept: Coordinate = {x: 0, y: 0};
-    public steps: Coordinate = {x: 0, y: 0};
     public directions: {down: boolean, left: boolean} = {down: false, left: false};
 
     constructor(ctx: CanvasRenderingContext2D, escenario: Level, x: number, y: number, anguloJugador: number, incrementoAngulo: number, columna: number) {
@@ -54,8 +52,6 @@ export class Ray {
         let angleTangent: number = Math.tan(this.angulo);
         let crash: {horizontal: boolean, vertical: boolean} = {horizontal: false, vertical: false};
 
-        this.intercept = {x: 0, y: 0};
-        this.steps = { x: 0, y: 0};
         this.directions = {down: false, left: false};
 
         if (this.angulo < Math.PI) {
@@ -69,7 +65,6 @@ export class Ray {
         ({ collision: crash.horizontal, wallHit: this.wallHitHorizontal } = this.collision("H", angleTangent, tamTile));
         ({ collision: crash.vertical, wallHit: this.wallHitVertical } = this.collision("V", angleTangent, tamTile));
 
-        // Distancias
         let distance: {horizontal: number, vertical: number} = {horizontal: 9999, vertical: 9999};
 
         if (crash.horizontal) {
@@ -80,29 +75,26 @@ export class Ray {
             distance.vertical = distanciaEntrePuntos(this.position.x, this.position.y, this.wallHitVertical.x, this.wallHitVertical.y);
         }
 
+        const impactWall = (wallHit: Coordinate, distance: number, direction: "H" | "V"): void => {
+            this.wallHit = { ...wallHit};
+            this.distancia = distance;
+            let wallHitZ = direction == "H" ? this.wallHit.x : this.wallHit.y;
+
+            let casilla = Math.trunc(wallHitZ / tamTile);
+            this.pixelTextura = wallHitZ - (casilla * tamTile);
+
+            this.idTextura = this.escenario.tile(this.wallHit.x, this.wallHit.y);
+        }
+
         if (distance.horizontal < distance.vertical) {
-            this.wallHit = { ...this.wallHitHorizontal}
-            this.distancia = distance.horizontal;
-
-            let casilla = Math.trunc(this.wallHit.x / tamTile);
-            this.pixelTextura = this.wallHit.x - (casilla * tamTile);
-
-            this.idTextura = this.escenario.tile(this.wallHit.x, this.wallHit.y);
-
+            impactWall(this.wallHitHorizontal, distance.horizontal, "H");
         } else {
-            this.wallHit = { ...this.wallHitVertical }
-            this.distancia = distance.vertical;
-
-            let casilla = Math.trunc(this.wallHit.y / tamTile) * tamTile;
-            this.pixelTextura = this.wallHit.y - casilla;
-
-            this.idTextura = this.escenario.tile(this.wallHit.x, this.wallHit.y);
+            impactWall(this.wallHitVertical, distance.vertical, "V");
         }
 
         // Corrección ojo de pez
         this.distancia = this.distancia * (Math.cos(this.anguloJugador - this.angulo));
 
-        // Guardamos en zBuffer
         zBuffer[this.columna] = this.distancia;
     }
 
@@ -140,8 +132,7 @@ export class Ray {
         let crash = false;
         let wallHit: Coordinate = { x: 0, y: 0 };
         let nextBox: Coordinate = { x: 0, y: 0 };
-        let stepX = 0;
-        let stepY = 0;
+        let steps: Coordinate = { x: 0, y: 0 };
 
         if (direction === "H") {
             nextBox.y = Math.floor(this.position.y / tamTile) * tamTile;
@@ -149,8 +140,8 @@ export class Ray {
 
             nextBox.x = this.position.x + (nextBox.y - this.position.y) / angleTangent;
 
-            stepY = this.directions.down ? tamTile : -tamTile;
-            stepX = stepY / angleTangent;
+            steps.y = this.directions.down ? tamTile : -tamTile;
+            steps.x = steps.y / angleTangent;
 
             if (!this.directions.down) nextBox.y--;
         } else {
@@ -159,8 +150,8 @@ export class Ray {
 
             nextBox.y = this.position.y + (nextBox.x - this.position.x) * angleTangent;
 
-            stepX = this.directions.left ? -tamTile : tamTile;
-            stepY = stepX * angleTangent;
+            steps.x = this.directions.left ? -tamTile : tamTile;
+            steps.y = steps.x * angleTangent;
 
             if (this.directions.left) nextBox.x--;
         }
@@ -173,8 +164,8 @@ export class Ray {
                 crash = true;
                 wallHit = { ...nextBox };
             } else {
-                nextBox.x += stepX;
-                nextBox.y += stepY;
+                nextBox.x += steps.x;
+                nextBox.y += steps.y;
             }
         }
 
