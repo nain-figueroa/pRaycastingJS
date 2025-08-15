@@ -57,16 +57,16 @@ export class Sprite {
         this.updateData();
 
         if (this.visible) {
+            let midCanvas: number = canvasAncho / 2;
             let highTile: number = 500;
-            let distanceProyection: number = (canvasAncho / 2) / Math.tan(FOV / 2);
+            let distanceProyection: number = (midCanvas) / Math.tan(FOV / 2);
             let heightSprite: number = (highTile / this.distance) * distanceProyection;
-
+            
             let y0: number = Math.trunc(canvasAlto / 2) - Math.trunc(heightSprite / 2);
             let y1: number = y0 + heightSprite;
             
             let highTexture: number = 64;
-            let widthTexture: number = 64;
-
+            
             let heightTexture: number = y0 - y1;
 
             let dx: number = this.x - this.player.x;
@@ -77,7 +77,7 @@ export class Sprite {
             let viewDist: number = 500;
 
             let x0: number = Math.tan(spriteAngle) * viewDist;
-            let x: number = (canvasAncho / 2 + x0 - heightTexture / 2);
+            let x: number = ((midCanvas) + x0 - heightTexture / 2);
 
             this.context.imageSmoothingEnabled = false;
 
