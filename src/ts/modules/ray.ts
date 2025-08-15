@@ -1,13 +1,13 @@
 import { normalizaAngulo, distanciaEntrePuntos } from "./functions.js";
-import { canvasAlto, canvasAncho, FOV, tamTile, zBuffer, tiles } from "../globalsVar.js";
+import { canvasAlto, canvasAncho, FOV, tamTile, zBuffer, tiles} from "../globalsVar.js";
+import type { Coordinate } from "../globalsVar.js";
 import { Level } from "./level.js";
 
 export class Ray {
     public ctx: CanvasRenderingContext2D;
     public escenario: Level;
 
-    public x: number;
-    public y: number;
+    public position: Coordinate;
 
     public incrementoAngulo: number;
     public anguloJugador: number;
@@ -15,14 +15,9 @@ export class Ray {
 
     public columna: number;
 
-    public wallHitX: number = 0;
-    public wallHitY: number = 0;
-
-    public wallHitXHorizontal: number = 0;
-    public wallHitYHorizontal: number = 0;
-
-    public wallHitXVertical: number = 0;
-    public wallHitYVertical: number = 0;
+    public wallHit: Coordinate = { x: 0, y: 0};
+    public wallHitHorizontal: Coordinate = {x: 0, y: 0};
+    public wallHitVertical: Coordinate = {x: 0, y: 0};
 
     public distancia: number = 0;
 
@@ -31,22 +26,15 @@ export class Ray {
 
     public distanciaPlanoProyeccion: number;
 
-    public xIntercept: number = 0;
-    public yIntercept: number = 0;
-    public xStep: number = 0;
-    public yStep: number = 0;
-
-    public abajo: boolean = false;
-    public izquierda: boolean = false;
-
-    public hCamara: number = 0;
+    public intercept: Coordinate = {x: 0, y: 0};
+    public steps: Coordinate = {x: 0, y: 0};
+    public directions: {down: boolean, left: boolean} = {down: false, left: false};
 
     constructor(ctx: CanvasRenderingContext2D, escenario: Level, x: number, y: number, anguloJugador: number, incrementoAngulo: number, columna: number) {
         this.ctx = ctx;
         this.escenario = escenario;
 
-        this.x = x;
-        this.y = y;
+        this.position = {x: x, y: y};
 
         this.incrementoAngulo = incrementoAngulo;
         this.anguloJugador = anguloJugador;
@@ -63,140 +51,52 @@ export class Ray {
     }
 
     cast(): void {
-        this.xIntercept = 0;
-        this.yIntercept = 0;
+        let angleTangent: number = Math.tan(this.angulo);
+        let crash: {horizontal: boolean, vertical: boolean} = {horizontal: false, vertical: false};
 
-        this.xStep = 0;
-        this.yStep = 0;
-
-        this.abajo = false;
-        this.izquierda = false;
+        this.intercept = {x: 0, y: 0};
+        this.steps = { x: 0, y: 0};
+        this.directions = {down: false, left: false};
 
         if (this.angulo < Math.PI) {
-            this.abajo = true;
+            this.directions.down = true;
         }
 
         if (this.angulo > Math.PI / 2 && this.angulo < 3 * Math.PI / 2) {
-            this.izquierda = true;
+            this.directions.left = true;
         }
 
-        // HORIZONTAL
-        let choqueHorizontal = false;
-
-        this.yIntercept = Math.floor(this.y / tamTile) * tamTile;
-        if (this.abajo) {
-            this.yIntercept += tamTile;
-        }
-
-        let adyacente = (this.yIntercept - this.y) / Math.tan(this.angulo);
-        this.xIntercept = this.x + adyacente;
-
-        this.yStep = tamTile;
-        this.xStep = this.yStep / Math.tan(this.angulo);
-
-        if (!this.abajo) {
-            this.yStep *= -1;
-        }
-
-        if ((this.izquierda && this.xStep > 0) || (!this.izquierda && this.xStep < 0)) {
-            this.xStep *= -1;
-        }
-
-        let siguienteXHorizontal = this.xIntercept;
-        let siguienteYHorizontal = this.yIntercept;
-
-        if (!this.abajo) {
-            siguienteYHorizontal--;
-        }
-
-        while (!choqueHorizontal) {
-            let casillaX = Math.trunc(siguienteXHorizontal / tamTile);
-            let casillaY = Math.trunc(siguienteYHorizontal / tamTile);
-
-            if (this.escenario.colision(casillaX, casillaY)) {
-                choqueHorizontal = true;
-                this.wallHitXHorizontal = siguienteXHorizontal;
-                this.wallHitYHorizontal = siguienteYHorizontal;
-            } else {
-                siguienteXHorizontal += this.xStep;
-                siguienteYHorizontal += this.yStep;
-            }
-        }
-
-        // VERTICAL
-        let choqueVertical = false;
-
-        this.xIntercept = Math.floor(this.x / tamTile) * tamTile;
-        if (!this.izquierda) {
-            this.xIntercept += tamTile;
-        }
-
-        let opuesto = (this.xIntercept - this.x) * Math.tan(this.angulo);
-        this.yIntercept = this.y + opuesto;
-
-        this.xStep = tamTile;
-        if (this.izquierda) {
-            this.xStep *= -1;
-        }
-
-        this.yStep = tamTile * Math.tan(this.angulo);
-
-        if ((!this.abajo && this.yStep > 0) || (this.abajo && this.yStep < 0)) {
-            this.yStep *= -1;
-        }
-
-        let siguienteXVertical = this.xIntercept;
-        let siguienteYVertical = this.yIntercept;
-
-        if (this.izquierda) {
-            siguienteXVertical--;
-        }
-
-        while (!choqueVertical && (siguienteXVertical >= 0 && siguienteYVertical >= 0 && siguienteXVertical < canvasAncho && siguienteYVertical < canvasAlto)) {
-            let casillaX = Math.trunc(siguienteXVertical / tamTile);
-            let casillaY = Math.trunc(siguienteYVertical / tamTile);
-
-            if (this.escenario.colision(casillaX, casillaY)) {
-                choqueVertical = true;
-                this.wallHitXVertical = siguienteXVertical;
-                this.wallHitYVertical = siguienteYVertical;
-            } else {
-                siguienteXVertical += this.xStep;
-                siguienteYVertical += this.yStep;
-            }
-        }
+        ({ collision: crash.horizontal, wallHit: this.wallHitHorizontal } = this.collision("H", angleTangent, tamTile));
+        ({ collision: crash.vertical, wallHit: this.wallHitVertical } = this.collision("V", angleTangent, tamTile));
 
         // Distancias
-        let distanciaHorizontal = 9999;
-        let distanciaVertical = 9999;
+        let distance: {horizontal: number, vertical: number} = {horizontal: 9999, vertical: 9999};
 
-        if (choqueHorizontal) {
-            distanciaHorizontal = distanciaEntrePuntos(this.x, this.y, this.wallHitXHorizontal, this.wallHitYHorizontal);
+        if (crash.horizontal) {
+            distance.horizontal = distanciaEntrePuntos(this.position.x, this.position.y, this.wallHitHorizontal.x, this.wallHitHorizontal.y);
         }
 
-        if (choqueVertical) {
-            distanciaVertical = distanciaEntrePuntos(this.x, this.y, this.wallHitXVertical, this.wallHitYVertical);
+        if (crash.vertical) {
+            distance.vertical = distanciaEntrePuntos(this.position.x, this.position.y, this.wallHitVertical.x, this.wallHitVertical.y);
         }
 
-        if (distanciaHorizontal < distanciaVertical) {
-            this.wallHitX = this.wallHitXHorizontal;
-            this.wallHitY = this.wallHitYHorizontal;
-            this.distancia = distanciaHorizontal;
+        if (distance.horizontal < distance.vertical) {
+            this.wallHit = { ...this.wallHitHorizontal}
+            this.distancia = distance.horizontal;
 
-            let casilla = Math.trunc(this.wallHitX / tamTile);
-            this.pixelTextura = this.wallHitX - (casilla * tamTile);
+            let casilla = Math.trunc(this.wallHit.x / tamTile);
+            this.pixelTextura = this.wallHit.x - (casilla * tamTile);
 
-            this.idTextura = this.escenario.tile(this.wallHitX, this.wallHitY);
+            this.idTextura = this.escenario.tile(this.wallHit.x, this.wallHit.y);
 
         } else {
-            this.wallHitX = this.wallHitXVertical;
-            this.wallHitY = this.wallHitYVertical;
-            this.distancia = distanciaVertical;
+            this.wallHit = { ...this.wallHitVertical }
+            this.distancia = distance.vertical;
 
-            let casilla = Math.trunc(this.wallHitY / tamTile) * tamTile;
-            this.pixelTextura = this.wallHitY - casilla;
+            let casilla = Math.trunc(this.wallHit.y / tamTile) * tamTile;
+            this.pixelTextura = this.wallHit.y - casilla;
 
-            this.idTextura = this.escenario.tile(this.wallHitX, this.wallHitY);
+            this.idTextura = this.escenario.tile(this.wallHit.x, this.wallHit.y);
         }
 
         // Corrección ojo de pez
@@ -206,14 +106,14 @@ export class Ray {
         zBuffer[this.columna] = this.distancia;
     }
 
-    color(): string {
-        let paso = 526344;
-        let bloque = Math.trunc(canvasAlto / 36);
-        let matiz = Math.trunc(this.distancia / bloque);
-        let gris = matiz * paso;
-        let colorHex = "#" + gris.toString(16);
-        return colorHex;
-    }
+    // color(): string {
+    //     let paso = 526344;
+    //     let bloque = Math.trunc(canvasAlto / 36);
+    //     let matiz = Math.trunc(this.distancia / bloque);
+    //     let gris = matiz * paso;
+    //     let colorHex = "#" + gris.toString(16);
+    //     return colorHex;
+    // }
 
     renderPared(): void {
         let altoTile = 500;
@@ -235,4 +135,50 @@ export class Ray {
         this.cast();
         this.renderPared();
     }
+
+    collision(direction: "H" | "V", angleTangent: number, tamTile: number): { collision: boolean, wallHit: Coordinate } {
+        let crash = false;
+        let wallHit: Coordinate = { x: 0, y: 0 };
+        let nextBox: Coordinate = { x: 0, y: 0 };
+        let stepX = 0;
+        let stepY = 0;
+
+        if (direction === "H") {
+            nextBox.y = Math.floor(this.position.y / tamTile) * tamTile;
+            if (this.directions.down) nextBox.y += tamTile;
+
+            nextBox.x = this.position.x + (nextBox.y - this.position.y) / angleTangent;
+
+            stepY = this.directions.down ? tamTile : -tamTile;
+            stepX = stepY / angleTangent;
+
+            if (!this.directions.down) nextBox.y--;
+        } else {
+            nextBox.x = Math.floor(this.position.x / tamTile) * tamTile;
+            if (!this.directions.left) nextBox.x += tamTile;
+
+            nextBox.y = this.position.y + (nextBox.x - this.position.x) * angleTangent;
+
+            stepX = this.directions.left ? -tamTile : tamTile;
+            stepY = stepX * angleTangent;
+
+            if (this.directions.left) nextBox.x--;
+        }
+
+        while (!crash && nextBox.x >= 0 && nextBox.y >= 0 && nextBox.x < canvasAncho && nextBox.y < canvasAlto) {
+            const boxX = Math.trunc(nextBox.x / tamTile);
+            const boxY = Math.trunc(nextBox.y / tamTile);
+
+            if (this.escenario.colision(boxX, boxY)) {
+                crash = true;
+                wallHit = { ...nextBox };
+            } else {
+                nextBox.x += stepX;
+                nextBox.y += stepY;
+            }
+        }
+
+        return { collision: crash, wallHit };
+    }
+
 }

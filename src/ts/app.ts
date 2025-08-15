@@ -1,4 +1,5 @@
 import { sprites,  canvasAlto, canvasAncho, tiles } from "./globalsVar.js";
+import { level1 } from "./levels.js";
 import { renderSprites } from "./modules/functions.js";
 import { Level } from "./modules/level.js";
 import { Player } from "./modules/player.js";
@@ -47,20 +48,6 @@ document.addEventListener('keyup', function (tecla) {
     }
 });
 
-// NIVEL 1
-const nivel1: number[][] = [
-    [1, 1, 2, 1, 1, 1, 2, 2, 1, 1],
-    [1, 0, 0, 0, 0, 0, 0, 1, 1, 1],
-    [1, 0, 0, 0, 0, 0, 0, 1, 1, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 3],
-    [1, 0, 1, 2, 1, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 1, 0, 0, 3, 3, 1],
-    [1, 0, 0, 1, 1, 0, 0, 1, 1, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-];
-
 // SPRITES
 let imgArmor: HTMLImageElement;
 let imgPlanta: HTMLImageElement;
@@ -87,15 +74,12 @@ export function inicializa(): void {
     canvas.width = canvasAncho;
     canvas.height = canvasAlto;
 
-    escenario = new Level(canvas, ctx, nivel1);
+    escenario = new Level(canvas, ctx, level1);
     jugador = new Player(ctx, escenario, 100, 100);
 
     inicializaSprites();
 
     setInterval(function () { principal(); }, 1000 / FPS);
-
-    // Reescala canvas (opcional, si tienes la función)
-    // reescalaCanvas();
 }
 
 window.inicializa = inicializa;

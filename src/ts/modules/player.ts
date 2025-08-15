@@ -87,8 +87,8 @@ export class Player {
         this.anguloRotacion = normalizaAngulo(this.anguloRotacion);
 
         for (let i = 0; i < this.numRayos; i++) {
-            this.rayos[i]!.x = this.x;
-            this.rayos[i]!.y = this.y;
+            this.rayos[i]!.position.x = this.x;
+            this.rayos[i]!.position.y = this.y;
             this.rayos[i]!.setAngulo(this.anguloRotacion);
         }
     }
