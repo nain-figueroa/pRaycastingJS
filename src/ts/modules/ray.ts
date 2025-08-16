@@ -1,6 +1,5 @@
 import { normalizaAngulo, distanciaEntrePuntos } from "./functions.js";
-import { canvasAlto, canvasAncho, FOV, tamTile, zBuffer, tiles} from "../globalsVar.js";
-import type { Coordinate } from "../globalsVar.js";
+import { canvasAlto, canvasAncho, FOV, tamTile, zBuffer, tiles, type Coordinate} from "../globalsVar.js";
 import { Level } from "./level.js";
 
 export class Ray {
@@ -19,12 +18,12 @@ export class Ray {
     public wallHitHorizontal: Coordinate = {x: 0, y: 0};
     public wallHitVertical: Coordinate = {x: 0, y: 0};
 
-    public distancia: number = 0;
+    public distance: number = 0;
 
     public pixelTextura: number = 0;
     public idTextura: number = 0;
 
-    public distanciaPlanoProyeccion: number;
+    public distancePlanoProyeccion: number;
 
     public directions: {down: boolean, left: boolean} = {down: false, left: false};
 
@@ -40,7 +39,7 @@ export class Ray {
 
         this.columna = columna;
 
-        this.distanciaPlanoProyeccion = (canvasAncho / 2) / Math.tan(FOV / 2);
+        this.distancePlanoProyeccion = (canvasAncho / 2) / Math.tan(FOV / 2);
     }
 
     setAngulo(angulo: number): void {
@@ -77,7 +76,7 @@ export class Ray {
 
         const impactWall = (wallHit: Coordinate, distance: number, direction: "H" | "V"): void => {
             this.wallHit = { ...wallHit};
-            this.distancia = distance;
+            this.distance = distance;
             let wallHitZ = direction == "H" ? this.wallHit.x : this.wallHit.y;
 
             let casilla = Math.trunc(wallHitZ / tamTile);
@@ -93,15 +92,15 @@ export class Ray {
         }
 
         // Corrección ojo de pez
-        this.distancia = this.distancia * (Math.cos(this.anguloJugador - this.angulo));
+        this.distance = this.distance * (Math.cos(this.anguloJugador - this.angulo));
 
-        zBuffer[this.columna] = this.distancia;
+        zBuffer[this.columna] = this.distance;
     }
 
     // color(): string {
     //     let paso = 526344;
     //     let bloque = Math.trunc(canvasAlto / 36);
-    //     let matiz = Math.trunc(this.distancia / bloque);
+    //     let matiz = Math.trunc(this.distance / bloque);
     //     let gris = matiz * paso;
     //     let colorHex = "#" + gris.toString(16);
     //     return colorHex;
@@ -109,7 +108,7 @@ export class Ray {
 
     renderPared(): void {
         let altoTile = 500;
-        let alturaMuro = (altoTile / this.distancia) * this.distanciaPlanoProyeccion;
+        let alturaMuro = (altoTile / this.distance) * this.distancePlanoProyeccion;
 
         let y0 = Math.trunc(canvasAncho / 2) - Math.trunc(alturaMuro / 2);
         let y1 = y0 + alturaMuro;

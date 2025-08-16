@@ -18,36 +18,6 @@ let FPS = 50;
 let escenario: Level;
 let jugador: Player;
 
-document.addEventListener('keydown', function (tecla) {
-    switch (tecla.key) {
-        case 'ArrowUp':
-            jugador.arriba();
-            break;
-        case 'ArrowDown':
-            jugador.abajo();
-            break;
-        case 'ArrowRight':
-            jugador.derecha();
-            break;
-        case 'ArrowLeft':
-            jugador.izquierda();
-            break;
-    }
-});
-
-document.addEventListener('keyup', function (tecla) {
-    switch (tecla.key) {
-        case 'ArrowUp':
-        case 'ArrowDown':
-            jugador.avanzaSuelta();
-            break;
-        case 'ArrowLeft':
-        case 'ArrowRight':
-            jugador.giraSuelta();
-            break;
-    }
-});
-
 // SPRITES
 let imgArmor: HTMLImageElement;
 let imgPlanta: HTMLImageElement;

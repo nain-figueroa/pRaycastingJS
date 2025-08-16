@@ -27,8 +27,8 @@ export class Sprite {
     }
 
     calculateAngule(): void {
-        let vectX = this.x - this.player.x;
-        let vectY = this.y - this.player.y;
+        let vectX = this.x - this.player.position.x;
+        let vectY = this.y - this.player.position.y;
 
         let anguleToPlayer = Math.atan2(vectY, vectX);
         var anguleDiference = this.player.anguloRotacion - anguleToPlayer;
@@ -50,7 +50,7 @@ export class Sprite {
 
     updateData(): void {
         this.calculateAngule();
-        this.distance =  distanciaEntrePuntos(this.player.x, this.player.y, this.x, this.y);
+        this.distance =  distanciaEntrePuntos(this.player.position.x, this.player.position.y, this.x, this.y);
     }
 
     draw(): void {
@@ -69,8 +69,8 @@ export class Sprite {
             
             let heightTexture: number = y0 - y1;
 
-            let dx: number = this.x - this.player.x;
-            let dy: number = this.y - this.player.y;
+            let dx: number = this.x - this.player.position.x;
+            let dy: number = this.y - this.player.position.y;
 
             let spriteAngle: number = Math.atan2(dy, dx) - this.player.anguloRotacion;
 
