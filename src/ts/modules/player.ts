@@ -14,7 +14,7 @@ export class Player {
     public anguloRotacion: number = 0;
 
     public velGiro: number = convierteRadianes(3);
-    public velMovimiento: number = 3;
+    public velMovimiento: number = 150;
 
     public numRayos: number;
     public rayos: Ray[] = [];
@@ -74,9 +74,9 @@ export class Player {
         return choca;
     }
 
-    actualiza(): void {
-        let nuevaX = this.position.x + this.avanza * Math.cos(this.anguloRotacion) * this.velMovimiento;
-        let nuevaY = this.position.y + this.avanza * Math.sin(this.anguloRotacion) * this.velMovimiento;
+    actualiza(deltaTime: number): void {
+        let nuevaX = this.position.x + this.avanza * Math.cos(this.anguloRotacion) * (this.velMovimiento * deltaTime);
+        let nuevaY = this.position.y + this.avanza * Math.sin(this.anguloRotacion) * (this.velMovimiento * deltaTime);
 
         if (!this.colision(nuevaX, nuevaY)) {
             this.position.x = nuevaX;
@@ -93,8 +93,8 @@ export class Player {
         }
     }
 
-    dibuja(): void {
-        this.actualiza();
+    dibuja(deltaTime: number): void {
+        this.actualiza(deltaTime);
 
         for (let i = 0; i < this.numRayos; i++) {
             this.rayos[i]!.dibuja();

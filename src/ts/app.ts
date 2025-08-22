@@ -22,6 +22,8 @@ let jugador: Player;
 let imgArmor: HTMLImageElement;
 let imgPlanta: HTMLImageElement;
 
+let lastTime: number = 0;
+
 function inicializaSprites() {
     imgArmor = new Image();
     imgArmor.src = "img/armor.png";
@@ -49,7 +51,9 @@ export function inicializa(): void {
 
     inicializaSprites();
 
-    setInterval(function () { principal(); }, 1000 / FPS);
+    requestAnimationFrame(principal);
+
+    // setInterval(function () { principal(); }, 1000 / FPS);
 }
 
 window.inicializa = inicializa;
@@ -67,9 +71,14 @@ function sueloTecho() {
     ctx.fillRect(0, 250, 500, 500);
 }
 
-function principal() {
+function principal(time: number) {
+    const deltaTime = (time - lastTime) / 1000;
+    lastTime = time;
+    
     borraCanvas();
     sueloTecho();
-    jugador.dibuja();
+    jugador.dibuja(deltaTime);
     renderSprites(sprites);
+
+    requestAnimationFrame(principal);
 }
