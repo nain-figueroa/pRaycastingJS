@@ -27,8 +27,8 @@ export class Sprite {
     }
 
     calculateAngule(): void {
-        let vectX = this.x - this.player.x;
-        let vectY = this.y - this.player.y;
+        let vectX = this.x - this.player.position.x;
+        let vectY = this.y - this.player.position.y;
 
         let anguleToPlayer = Math.atan2(vectY, vectX);
         var anguleDiference = this.player.anguloRotacion - anguleToPlayer;
@@ -50,34 +50,34 @@ export class Sprite {
 
     updateData(): void {
         this.calculateAngule();
-        this.distance =  distanciaEntrePuntos(this.player.x, this.player.y, this.x, this.y);
+        this.distance =  distanciaEntrePuntos(this.player.position.x, this.player.position.y, this.x, this.y);
     }
 
     draw(): void {
         this.updateData();
 
         if (this.visible) {
+            let midCanvas: number = canvasAncho / 2;
             let highTile: number = 500;
-            let distanceProyection: number = (canvasAncho / 2) / Math.tan(FOV / 2);
+            let distanceProyection: number = (midCanvas) / Math.tan(FOV / 2);
             let heightSprite: number = (highTile / this.distance) * distanceProyection;
-
+            
             let y0: number = Math.trunc(canvasAlto / 2) - Math.trunc(heightSprite / 2);
             let y1: number = y0 + heightSprite;
             
             let highTexture: number = 64;
-            let widthTexture: number = 64;
-
+            
             let heightTexture: number = y0 - y1;
 
-            let dx: number = this.x - this.player.x;
-            let dy: number = this.y - this.player.y;
+            let dx: number = this.x - this.player.position.x;
+            let dy: number = this.y - this.player.position.y;
 
             let spriteAngle: number = Math.atan2(dy, dx) - this.player.anguloRotacion;
 
             let viewDist: number = 500;
 
             let x0: number = Math.tan(spriteAngle) * viewDist;
-            let x: number = (canvasAncho / 2 + x0 - heightTexture / 2);
+            let x: number = ((midCanvas) + x0 - heightTexture / 2);
 
             this.context.imageSmoothingEnabled = false;
 

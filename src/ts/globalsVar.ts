@@ -12,3 +12,5 @@ export let modo: number = 0;	//Raycasting = 0     Mapa = 1
 export let tiles: HTMLImageElement = new Image();
 
 export let sprites: any[] = [];	//array con los sprites
+
+export type Coordinate = {x: number, y: number}
