@@ -26,10 +26,10 @@ let lastTime: number = 0;
 
 function inicializaSprites() {
     imgArmor = new Image();
-    imgArmor.src = "img/armor.png";
+    imgArmor.src = "./src/img/armor.png";
 
     imgPlanta = new Image();
-    imgPlanta.src = "img/planta.png";
+    imgPlanta.src = "./src/img/planta.png";
 
     sprites[0] = new Sprite(300, 120, imgArmor, jugador, ctx);
     sprites[1] = new Sprite(150, 150, imgArmor, jugador, ctx);
@@ -41,7 +41,7 @@ export function inicializa(): void {
     canvas = document.getElementById('canvas') as HTMLCanvasElement;
     ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
 
-    tiles.src = "img/walls.png";
+    tiles.src = "./src/img/walls.png";
 
     canvas.width = canvasAncho;
     canvas.height = canvasAlto;
